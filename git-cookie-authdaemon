@@ -5,6 +5,7 @@ Tokens are written to ~/.git-credential-cache/cookie
 Git config variable http.cookiefile is updated.
 """
 
+import atexit
 import cookielib
 import json
 import os
@@ -64,7 +65,14 @@ def update_cookie():
   os.rename(tmp_jar, COOKIE_JAR)
   return expires
 
+def cleanup():
+  if COOKIE_JAR:
+	for p in [COOKIE_JAR, COOKIE_JAR + '.lock']:
+      if os.path.exists(p):
+        os.remove(p)
+
 def refresh_loop(expires):
+  atexit.register(cleanup)
   expires = expires - REFRESH
   while True:
     now = time.time()
