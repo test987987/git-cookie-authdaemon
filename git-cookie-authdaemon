@@ -67,7 +67,7 @@ def update_cookie():
 
 def cleanup():
   if COOKIE_JAR:
-	for p in [COOKIE_JAR, COOKIE_JAR + '.lock']:
+    for p in [COOKIE_JAR, COOKIE_JAR + '.lock']:
       if os.path.exists(p):
         os.remove(p)
 
