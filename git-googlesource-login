@@ -1,0 +1,64 @@
+#!/usr/bin/python
+"""
+Configures git to authenticate to *.googlesource.com.
+
+Adds a cookie to ~/.git-credential-cache/cookies and sets
+Git variable http.cookiefile to this path.
+"""
+
+import cookielib
+import os
+from subprocess import Popen, PIPE, check_call
+
+def write_cookie(token):
+  git_config = ['git', 'config', '--global', 'http.cookiefile']
+  set_config = False
+
+  fn = Popen(git_config, stdout=PIPE).communicate()[0]
+  if fn == '':
+    home = os.environ['HOME']
+    fn = os.path.join(home, '.git-credential-cache', 'cookies')
+    set_config = True
+  elif fn[-1] == '\n':
+    fn = fn[:-1]
+
+  dir = os.path.dirname(fn)
+  if os.path.exists(dir):
+    os.chmod(dir, 0700)
+  else:
+    os.mkdir(dir, 0700)
+
+  cj = cookielib.MozillaCookieJar(fn)
+  if os.path.exists(cj.filename):
+    cj.load()
+  cj.set_cookie(cookielib.Cookie(
+    version = 0,
+    name = 'o',
+    value = token,
+    port = None,
+    port_specified = False,
+    domain = '.googlesource.com',
+    domain_specified = True,
+    domain_initial_dot = True,
+    path = '/',
+    path_specified = True,
+    secure = True,
+    expires = (1 << 31) - 1,
+    discard = False,
+    comment = None,
+    comment_url = None,
+    rest = None))
+  cj.save()
+  os.chmod(cj.filename, 0600)
+  if set_config:
+    check_call(git_config + [cj.filename])
+  return cj.filename
+
+def main():
+  print 'Open https://www.googlesource.com/new-password ...'
+  t = raw_input("Password (under 'Login for Git'): ")
+  p = write_cookie(t)
+  print "Saved to %s" % (p,)
+
+if __name__ == '__main__':
+  main()

@@ -3,6 +3,8 @@
 Background daemon to refresh OAuth access tokens.
 Tokens are written to ~/.git-credential-cache/cookie
 Git config variable http.cookiefile is updated.
+
+Runs only on Google Compute Engine.
 """
 
 import atexit
