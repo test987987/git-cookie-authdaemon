@@ -16,7 +16,7 @@ import sys
 import time
 import urllib2
 
-REFRESH = 300  # seconds remaining when starting refresh
+REFRESH = 25  # seconds remaining when starting refresh
 RETRY_INTERVAL = 5 # seconds between retrying a failed refresh
 
 A = 'http://metadata/0.1/meta-data/service-accounts/default/acquire'
