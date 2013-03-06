@@ -17,6 +17,7 @@ import time
 import urllib2
 
 REFRESH = 300  # seconds remaining when starting refresh
+RETRY_INTERVAL = 5 # seconds between retrying a failed refresh
 
 A = 'http://metadata/0.1/meta-data/service-accounts/default/acquire'
 S = 'https://www.googleapis.com/auth/gerritcodereview'
@@ -37,11 +38,18 @@ def configure_git():
     'http.cookiefile', COOKIE_JAR
   ])
 
-def acquire_token():
-  return json.load(urllib2.urlopen(A + '?scopes=' + S))
+def acquire_token(retry):
+  while True:
+    try:
+      with urllib2.urlopen(A + '?scopes=' + S) as token:
+        return json.load(token)
+    except urllib2.URLError:
+      if not retry:
+        raise
+    time.sleep(RETRY_INTERVAL)
 
-def update_cookie():
-  token = acquire_token()
+def update_cookie(retry):
+  token = acquire_token(retry)
   expires = token['expiresAt']
 
   tmp_jar = COOKIE_JAR + '.lock'
@@ -78,14 +86,15 @@ def refresh_loop(expires):
   expires = expires - REFRESH
   while True:
     now = time.time()
+    expires = max(expires, now + RETRY_INTERVAL)
     while now < expires:
       time.sleep(expires - now)
       now = time.time()
-    expires = update_cookie() - REFRESH
+    expires = update_cookie(retry=True) - REFRESH
 
 def main():
   configure_git()
-  expires = update_cookie()
+  expires = update_cookie(retry=False)
 
   if os.fork() > 0:
     sys.exit(0)
