@@ -8,6 +8,7 @@ Runs only on Google Compute Engine.
 """
 
 import atexit
+import contextlib
 import cookielib
 import json
 import os
@@ -41,7 +42,7 @@ def configure_git():
 def acquire_token(retry):
   while True:
     try:
-      with urllib2.urlopen(A + '?scopes=' + S) as token:
+      with contextlib.closing(urllib2.urlopen(A + '?scopes=' + S)) as token:
         return json.load(token)
     except urllib2.URLError:
       if not retry:
