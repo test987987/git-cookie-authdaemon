@@ -97,17 +97,18 @@ def main():
   configure_git()
   expires = update_cookie(retry=False)
 
-  if os.fork() > 0:
-    sys.exit(0)
+  if '--nofork' not in sys.argv:
+    if os.fork() > 0:
+      sys.exit(0)
 
-  os.chdir('/')
-  os.setsid()
-  os.umask(0)
+    os.chdir('/')
+    os.setsid()
+    os.umask(0)
 
-  pid = os.fork()
-  if pid > 0:
-    print '%s PID %d' % (sys.argv[0], pid)
-    sys.exit(0)
+    pid = os.fork()
+    if pid > 0:
+      print '%s PID %d' % (sys.argv[0], pid)
+      sys.exit(0)
 
   refresh_loop(expires)
 
