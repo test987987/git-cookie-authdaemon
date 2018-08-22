@@ -38,6 +38,7 @@ RETRY_INTERVAL = 5 # seconds between retrying a failed refresh
 
 META_URL = 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/'
 SUPPORTED_SCOPES = [
+  'https://www.googleapis.com/auth/cloud-platform',
   'https://www.googleapis.com/auth/gerritcodereview',
   'https://www.googleapis.com/auth/source.full_control',
   'https://www.googleapis.com/auth/source.read_write',
