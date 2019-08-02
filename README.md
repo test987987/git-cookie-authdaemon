@@ -33,6 +33,49 @@ git clone https://gerrit.googlesource.com/gcompute-tools/
 The daemon launches itself into the background and continues
 to keep the OAuth2 access token fresh.
 
+### Launch at Linux boot
+
+git-cookie-authdaemon can be started as a systemd service at boot.
+
+```
+# Write the service config
+$ sudo cat > /etc/systemd/system/git-cookie-authdaemon.service << EOF
+[Unit]
+Description=git-cookie-authdaemon required to access git-on-borg from GCE
+
+Wants=network.target
+After=syslog.target network-online.target
+
+[Service]
+User=builder  # update to your user
+Group=builder  # update to your group
+Type=simple
+ExecStart=/path/to/git-cookie-authdaemon  # update the path
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Reload the service configs
+$ sudo systemctl daemon-reload
+
+# Enable the service
+$ sudo systemctl enable git-cookie-authdaemon
+
+# Start the service
+sudo systemctl start git-cookie-authdaemon
+
+# Check the status of the service
+systemctl status git-cookie-authdaemon
+ps -ef | grep git-cookie-authdaemon
+
+# Reboot and check status again.
+
+```
+
 ## Installation on Windows
 
 1. Install [Python](https://www.python.org/downloads/windows/) and
