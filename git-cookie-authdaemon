@@ -183,14 +183,8 @@ def main():
     os.chdir('/')
     os.setsid()
     os.umask(0)
-    try:
-      pid = os.fork()
-      if pid > 0:
-        print 'git-cookie-authdaemon PID %d' % (pid)
-        sys.exit(0)
-    except OSError, e:
-      sys.stderr.write("bad %d %s\n" % (e.errno, e.strerror))
-      sys.exit(1)
+
+    sys.exit(0)
   refresh_loop(scope, expires)
 
 if __name__ == '__main__':
